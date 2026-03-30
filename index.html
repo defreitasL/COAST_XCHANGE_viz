@@ -167,6 +167,72 @@
       </div>
     </section>
 
+    <section id="project-timeline" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Project structure</p>
+          <h2>COAST-XCHANGE timeline</h2>
+          <p>Overview of the main project phases across M1–M48.</p>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-grid" id="timeline-grid">
+            <div class="timeline-scale-label"></div>
+            <div class="timeline-scale" id="timeline-scale"></div>
+
+            <div class="timeline-row">
+              <div class="timeline-label">Administrative setup</div>
+              <button class="timeline-bar admin"
+                      data-title="Administrative setup"
+                      data-months="M1–M3"
+                      data-description="Initial administrative and project start-up processes, including kick-off preparation, internal coordination, and implementation setup."
+                      style="--start:1; --end:3;">
+                M1–M3
+              </button>
+            </div>
+
+            <div class="timeline-row">
+              <div class="timeline-label">Phase 1</div>
+              <button class="timeline-bar phase1"
+                      data-title="Phase 1"
+                      data-months="M4–M18"
+                      data-description="Learning from each other: exchange of expertise, methods, datasets, and foundational workflows across the consortium."
+                      style="--start:4; --end:18;">
+                M4–M18
+              </button>
+            </div>
+
+            <div class="timeline-row">
+              <div class="timeline-label">Phase 2</div>
+              <button class="timeline-bar phase2"
+                      data-title="Phase 2"
+                      data-months="M16–M40"
+                      data-description="Building something together: joint scientific development, methodological integration, and collaborative model and framework advancement."
+                      style="--start:16; --end:40;">
+                M16–M40
+              </button>
+            </div>
+
+            <div class="timeline-row">
+              <div class="timeline-label">Phase 3</div>
+              <button class="timeline-bar phase3"
+                      data-title="Phase 3"
+                      data-months="M35–M48"
+                      data-description="Knowledge transfer: consolidation, dissemination, stakeholder-oriented outputs, and transfer of methods and results."
+                      style="--start:35; --end:48;">
+                M35–M48
+              </button>
+            </div>
+          </div>
+
+          <div class="timeline-detail" id="timeline-detail">
+            <h3>Click on a phase</h3>
+            <p>Select one bar to display its description here.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     
     <section id="interactive-graphic" class="section">
       <div class="container">
@@ -234,6 +300,32 @@
 
 
   </main>
+
+<script>
+  const scale = document.getElementById("timeline-scale");
+  const detail = document.getElementById("timeline-detail");
+  const bars = document.querySelectorAll(".timeline-bar");
+
+  if (scale) {
+    for (let i = 1; i <= 48; i++) {
+      const tick = document.createElement("div");
+      tick.textContent = `M${i}`;
+      scale.appendChild(tick);
+    }
+  }
+
+  bars.forEach(bar => {
+    bar.addEventListener("click", () => {
+      bars.forEach(b => b.classList.remove("active"));
+      bar.classList.add("active");
+
+      detail.innerHTML = `
+        <h3>${bar.dataset.title} <span style="color:#617488; font-weight:600;">(${bar.dataset.months})</span></h3>
+        <p>${bar.dataset.description}</p>
+      `;
+    });
+  });
+</script>
 
 </body>
 </html>
