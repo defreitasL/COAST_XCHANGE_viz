@@ -1,0 +1,84 @@
+short_code,spatial_scale,skill_family,skill_name,environment
+EMCB,subregional / embayment,Modelling,Integrated cross-shore / one-line shoreline modelling,barrier island
+EMCG,subregional / embayment,Modelling,Integrated cross-shore / one-line shoreline modelling,gravel beach
+EMCS,subregional / embayment,Modelling,Integrated cross-shore / one-line shoreline modelling,sandy beach
+EMGD,subregional / embayment,Modelling,Tidal inlet and estuary morphodynamics,deltaic shoreline
+EMGE,subregional / embayment,Modelling,Tidal inlet and estuary morphodynamics,estuary / lagoon
+EMGI,subregional / embayment,Modelling,Tidal inlet and estuary morphodynamics,tidal inlet / sand spit / river mouth
+EMIB,subregional / embayment,Modelling,Coastal flooding and compound inundation modelling,barrier island
+EMID,subregional / embayment,Modelling,Coastal flooding and compound inundation modelling,deltaic shoreline
+EMIE,subregional / embayment,Modelling,Coastal flooding and compound inundation modelling,estuary / lagoon
+EMIM,subregional / embayment,Modelling,Coastal flooding and compound inundation modelling,marsh / mangrove
+EOEB,subregional / embayment,Observations,Satellite-derived shoreline extraction,barrier island
+EOED,subregional / embayment,Observations,Satellite-derived shoreline extraction,deltaic shoreline
+EOEE,subregional / embayment,Observations,Satellite-derived shoreline extraction,estuary / lagoon
+EOES,subregional / embayment,Observations,Satellite-derived shoreline extraction,sandy beach
+EPBB,subregional / embayment,Decision support,"Hazard mapping, screening and decision-support co-design",barrier island
+EPBC,subregional / embayment,Decision support,"Hazard mapping, screening and decision-support co-design",cliffs
+EPBD,subregional / embayment,Decision support,"Hazard mapping, screening and decision-support co-design",deltaic shoreline
+EPBE,subregional / embayment,Decision support,"Hazard mapping, screening and decision-support co-design",estuary / lagoon
+EPBM,subregional / embayment,Decision support,"Hazard mapping, screening and decision-support co-design",marsh / mangrove
+EUFB,subregional / embayment,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,barrier island
+EUFC,subregional / embayment,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,cliffs
+EUFD,subregional / embayment,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,deltaic shoreline
+EUFE,subregional / embayment,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,estuary / lagoon
+EUFM,subregional / embayment,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,marsh / mangrove
+EUFS,subregional / embayment,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,sandy beach
+LMCB,reach / littoral cell,Modelling,Integrated cross-shore / one-line shoreline modelling,barrier island
+LMCG,reach / littoral cell,Modelling,Integrated cross-shore / one-line shoreline modelling,gravel beach
+LMCS,reach / littoral cell,Modelling,Integrated cross-shore / one-line shoreline modelling,sandy beach
+LMGD,reach / littoral cell,Modelling,Tidal inlet and estuary morphodynamics,deltaic shoreline
+LMGE,reach / littoral cell,Modelling,Tidal inlet and estuary morphodynamics,estuary / lagoon
+LMGI,reach / littoral cell,Modelling,Tidal inlet and estuary morphodynamics,tidal inlet / sand spit / river mouth
+LOHB,reach / littoral cell,Observations,Video-based coastal monitoring,barrier island
+LOHI,reach / littoral cell,Observations,Video-based coastal monitoring,tidal inlet / sand spit / river mouth
+LOHS,reach / littoral cell,Observations,Video-based coastal monitoring,sandy beach
+NDDB,multi-site / network,Data workflows,Multi-source data harmonisation and QA/QC,barrier island
+NDDC,multi-site / network,Data workflows,Multi-source data harmonisation and QA/QC,cliffs
+NDDD,multi-site / network,Data workflows,Multi-source data harmonisation and QA/QC,deltaic shoreline
+NDDE,multi-site / network,Data workflows,Multi-source data harmonisation and QA/QC,estuary / lagoon
+NDDS,multi-site / network,Data workflows,Multi-source data harmonisation and QA/QC,sandy beach
+NUFB,multi-site / network,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,barrier island
+NUFC,multi-site / network,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,cliffs
+NUFD,multi-site / network,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,deltaic shoreline
+NUFE,multi-site / network,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,estuary / lagoon
+NUFM,multi-site / network,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,marsh / mangrove
+NUFS,multi-site / network,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,sandy beach
+RDDB,regional,Data workflows,Multi-source data harmonisation and QA/QC,barrier island
+RDDC,regional,Data workflows,Multi-source data harmonisation and QA/QC,cliffs
+RDDD,regional,Data workflows,Multi-source data harmonisation and QA/QC,deltaic shoreline
+RDDE,regional,Data workflows,Multi-source data harmonisation and QA/QC,estuary / lagoon
+RDDS,regional,Data workflows,Multi-source data harmonisation and QA/QC,sandy beach
+RMIB,regional,Modelling,Coastal flooding and compound inundation modelling,barrier island
+RMID,regional,Modelling,Coastal flooding and compound inundation modelling,deltaic shoreline
+RMIE,regional,Modelling,Coastal flooding and compound inundation modelling,estuary / lagoon
+RMIM,regional,Modelling,Coastal flooding and compound inundation modelling,marsh / mangrove
+ROEB,regional,Observations,Satellite-derived shoreline extraction,barrier island
+ROED,regional,Observations,Satellite-derived shoreline extraction,deltaic shoreline
+ROEE,regional,Observations,Satellite-derived shoreline extraction,estuary / lagoon
+ROES,regional,Observations,Satellite-derived shoreline extraction,sandy beach
+RPBB,regional,Decision support,"Hazard mapping, screening and decision-support co-design",barrier island
+RPBC,regional,Decision support,"Hazard mapping, screening and decision-support co-design",cliffs
+RPBD,regional,Decision support,"Hazard mapping, screening and decision-support co-design",deltaic shoreline
+RPBE,regional,Decision support,"Hazard mapping, screening and decision-support co-design",estuary / lagoon
+RPBM,regional,Decision support,"Hazard mapping, screening and decision-support co-design",marsh / mangrove
+RUAB,regional,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",barrier island
+RUAE,regional,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",estuary / lagoon
+RUAI,regional,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",tidal inlet / sand spit / river mouth
+RUAS,regional,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",sandy beach
+RUFB,regional,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,barrier island
+RUFC,regional,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,cliffs
+RUFD,regional,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,deltaic shoreline
+RUFE,regional,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,estuary / lagoon
+RUFM,regional,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,marsh / mangrove
+RUFS,regional,Uncertainty & scenarios,Sea-level rise and climate scenario stress-testing,sandy beach
+SMCB,site,Modelling,Integrated cross-shore / one-line shoreline modelling,barrier island
+SMCG,site,Modelling,Integrated cross-shore / one-line shoreline modelling,gravel beach
+SMCS,site,Modelling,Integrated cross-shore / one-line shoreline modelling,sandy beach
+SOHB,site,Observations,Video-based coastal monitoring,barrier island
+SOHI,site,Observations,Video-based coastal monitoring,tidal inlet / sand spit / river mouth
+SOHS,site,Observations,Video-based coastal monitoring,sandy beach
+SUAB,site,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",barrier island
+SUAE,site,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",estuary / lagoon
+SUAI,site,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",tidal inlet / sand spit / river mouth
+SUAS,site,Uncertainty & scenarios,"Ensemble modelling, Bayesian calibration and uncertainty quantification",sandy beach

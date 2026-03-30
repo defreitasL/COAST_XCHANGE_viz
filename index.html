@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COAST-XCHANGE · Secondment Skills Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("img-modal");
+  const modalImg = document.getElementById("img-modal-content");
+  const closeBtn = document.querySelector(".img-modal-close");
+
+  function openImage(src, alt) {
+    modalImg.src = src;
+    modalImg.alt = alt || "Expanded screenshot";
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  document.querySelectorAll(".step-figure").forEach(fig => {
+    const img = fig.querySelector("img");
+    const btn = fig.querySelector(".zoom-btn");
+
+    if (img) {
+      img.addEventListener("click", () => openImage(img.src, img.alt));
+    }
+    if (btn && img) {
+      btn.addEventListener("click", () => openImage(img.src, img.alt));
+    }
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal) {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+  });
+});
+</script>
+
+<body>
+  <header class="site-header">
+    <div class="container hero">
+      <div class="hero-copy">
+        <p class="eyebrow">COAST-XCHANGE · Consortium Guide</p>
+        <h1>How to describe secondments using the interactive skills graphics</h1>
+        <p class="lead">
+          This page is a simple guide for consortium members to identify the most relevant skills for a
+          secondment and report them using the shared COAST-XCHANGE coding system.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#interactive-graphic">Open the interactive graphic</a>
+          <a class="btn btn-secondary" href="#how-to-use">See how to use it</a>
+        </div>
+
+        <div class="hero-tags">
+          <span>Institution-based navigation</span>
+          <span>Shared coding system</span>
+          <span>Secondment consistency</span>
+        </div>
+      </div>
+
+      <aside class="hero-panel">
+        <h2>Current interactive logic</h2>
+        <ol>
+          <li>Institution</li>
+          <li>Skill family</li>
+          <li>Environment</li>
+          <li>Spatial scale</li>
+          <li>Final short code</li>
+          <li>Secondment description</li>
+        </ol>
+      </aside>
+    </div>
+  </header>
+
+  <main>
+
+
+    <section id="how-to-use" class="section alt">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Workflow</p>
+          <h2>How to use the interactive graphic</h2>
+          <p>Follow the steps below.</p>
+        </div>
+
+        <div class="steps-grid">
+          <article class="step-card">
+            <div class="step-number">1</div>
+            <h3>Select the host institution</h3>
+            <div class="placeholder-inline">E.g.: ENPC.</div>
+
+            <figure class="step-figure">
+              <img src="assets/Step1.png" alt="Step 1 screenshot" class="zoomable-img">
+              <button class="zoom-btn" type="button" aria-label="Open screenshot full size">
+                🔍
+              </button>
+            </figure>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">2</div>
+            <h3>Choose the relevant skill family</h3>
+            <div class="placeholder-inline">E.g.: Modelling.</div>
+
+            <figure class="step-figure">
+              <img src="assets/Step2.png" alt="Step 2 screenshot" class="zoomable-img">
+              <button class="zoom-btn" type="button" aria-label="Open screenshot full size">
+                🔍
+              </button>
+            </figure>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">3</div>
+            <h3>Refine by environment and spatial scale</h3>
+            <div class="placeholder-inline">E.g.: Sandy Beach / local and regional.</div>
+
+            <figure class="step-figure">
+              <img src="assets/Step3.png" alt="Step 3 screenshot" class="zoomable-img">
+              <button class="zoom-btn" type="button" aria-label="Open screenshot full size">
+                🔍
+              </button>
+            </figure>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">4</div>
+            <h3>Record the final short code</h3>
+            <div class="placeholder-inline">E.g.: BMSS and BMSE.</div>
+
+            <figure class="step-figure">
+              <img src="assets/Step4.png" alt="Step 4 screenshot" class="zoomable-img">
+              <button class="zoom-btn" type="button" aria-label="Open screenshot full size">
+                🔍
+              </button>
+            </figure>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div id="img-modal" class="img-modal" aria-hidden="true">
+      <button class="img-modal-close" type="button" aria-label="Close image">✕</button>
+      <img id="img-modal-content" src="" alt="Expanded screenshot">
+    </div>
+
+    <section class="section">
+      <div class="container two-col wide-right">
+        <div class="card">
+          <h2>How to read the code: BMSS and BMSE</h2>
+          <div class="code-grid">
+            <div class="code-box">
+              <span class="code-letter">1</span>
+              <span class="code-label">Institution:
+                ENPC -> B
+              </span>
+            </div>
+            <div class="code-box">
+              <span class="code-letter">2</span>
+              <span class="code-label">Skill family:
+                Modelling -> M
+              </span>
+            </div>
+            <div class="code-box">
+              <span class="code-letter">3</span>
+              <span class="code-label">Environment:
+                Sandy Beach -> S
+              </span>
+            </div>
+            <div class="code-box">
+              <span class="code-letter">4</span>
+              <span class="code-label">Spatial scale:
+                Local -> S
+                Regional -> E
+              </span>
+            </div>
+          </div>
+          <div class="placeholder-block small">
+            <p><strong>Secondment description:</strong> (M6–M8 - Phase 1 - WP2) will develop skills BMSS and BMSE, sharing uncertainty-aware calibration techniques and learning how to extend and apply these methods to different morphological variables, such as sandbar position and dune morphology.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Worked examples</h2>
+          <div class="placeholder-block medium">
+            <p><strong>Example 1:</strong> (M22–M26 - Phase 2 - WP3) will develop skills CUSS and CUSE by building a multi-model framework coupled with a climate emulator to propagate quantified structural uncertainties (WP2) alongside climate variability.</p>
+          </div>
+          <div class="placeholder-block medium">
+            <p><strong>Example 2:</strong> CAMILO -> WRITE ONE HERE!!</p>
+        </div>
+      </div>
+    </section>
+
+    
+    <section id="interactive-graphic" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Interactive chart</p>
+          <h2>Use the institution-based graphic to identify secondment skills</h2>
+          <p>
+          </p>
+        </div>
+
+        <div class="chart-shell">
+
+          <div class="chart-shell">
+            <div class="chart-toolbar">
+              <span class="status-dot"></span>
+              <span>Interactive chart</span>
+            </div>
+
+            <div class="chart-embed">
+              <iframe
+                src="/assets/interactive_secondment_chart.html"
+                title="COAST-XCHANGE interactive chart"
+                loading="lazy">
+              </iframe>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container two-col">
+        <div class="card">
+          <h2>Want to get back in the selection?</h2>
+          <div class="template-box">
+            <h3>Click in the center of the chart!</h3>
+            <figure class="step-figure">
+              <img src="assets/goback.png" alt="go back screenshot" class="zoomable-img">
+              <button class="zoom-btn" type="button" aria-label="Open screenshot full size">
+                🔍
+              </button>
+            </figure>
+            
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Recommendations</h2>
+          <div class="placeholder-block">
+            <p>Try to link each secondment to 1–3 skills, depending on its duration. Do not select too many skills for a single short secondment. PhD students should focus on developing a few key skills rather than spreading themselves too thin across many areas, and each secondment should last at least 3 months. It is valuable to link a secondment to more than one WP in order to ensure interdisciplinarity. Do not be too ambitious in the number of skills selected or in the scope of the description; all secondments should be feasible within the planned timeframe.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="end" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">contact</p>
+          <h2>Any questions?</h2>
+          <p>
+            If you have any questions about how to use the interactive graphic or how to report secondment skills, please contact us at <a href="mailto:lucas.defreitas@unican.es">lucas.defreitas@unican.es</a>
+          </p>
+        </div>
+
+    </section>
+
+
+  </main>
+
+</body>
+</html>
