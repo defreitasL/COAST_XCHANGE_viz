@@ -10,55 +10,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("img-modal");
-  const modalImg = document.getElementById("img-modal-content");
-  const closeBtn = document.querySelector(".img-modal-close");
-
-  function openImage(src, alt) {
-    modalImg.src = src;
-    modalImg.alt = alt || "Expanded screenshot";
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
-  }
-
-  document.querySelectorAll(".step-figure").forEach(fig => {
-    const img = fig.querySelector("img");
-    const btn = fig.querySelector(".zoom-btn");
-
-    if (img) {
-      img.addEventListener("click", () => openImage(img.src, img.alt));
-    }
-    if (btn && img) {
-      btn.addEventListener("click", () => openImage(img.src, img.alt));
-    }
-  });
-
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
-    });
-  }
-
-  if (modal) {
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.classList.remove("open");
-        modal.setAttribute("aria-hidden", "true");
-      }
-    });
-  }
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal) {
-      modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
-    }
-  });
-});
-</script>
 
 <body>
   <header class="site-header">
@@ -225,24 +176,20 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>
           </p>
         </div>
-
         <div class="chart-shell">
-
-          <div class="chart-shell">
-            <div class="chart-toolbar">
-              <span class="status-dot"></span>
-              <span>Interactive chart</span>
-            </div>
-
-            <div class="chart-embed">
-              <iframe
-                src="/assets/interactive_secondment_chart.html"
-                title="COAST-XCHANGE interactive chart"
-                loading="lazy">
-              </iframe>
-            </div>
+          <div class="chart-toolbar">
+            <span class="status-dot"></span>
+            <span>Interactive chart</span>
           </div>
+
+          <div class="chart-embed">
+            <iframe
+              src="/assets/interactive_secondment_chart.html"
+              title="COAST-XCHANGE interactive chart"
+              loading="lazy">
+            </iframe>
           </div>
+        </div>
         </div>
       </div>
     </section>
@@ -290,3 +237,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("img-modal");
+  const modalImg = document.getElementById("img-modal-content");
+  const closeBtn = document.querySelector(".img-modal-close");
+
+  function openImage(src, alt) {
+    modalImg.src = src;
+    modalImg.alt = alt || "Expanded screenshot";
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  document.querySelectorAll(".step-figure").forEach(fig => {
+    const img = fig.querySelector("img");
+    const btn = fig.querySelector(".zoom-btn");
+
+    if (img) {
+      img.addEventListener("click", () => openImage(img.src, img.alt));
+    }
+    if (btn && img) {
+      btn.addEventListener("click", () => openImage(img.src, img.alt));
+    }
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal) {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+  });
+});
+</script>
