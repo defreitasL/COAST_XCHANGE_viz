@@ -313,15 +313,30 @@
           <form id="secondments-form">
             <div class="secondments-topbar">
               <div class="secondments-field institution-field">
-                <label for="institution-input">Your institution (the exact same acronym as in the Excel file of the consortium):</label>
-                <input
-                  id="institution-input"
-                  name="institution"
-                  type="text"
-                  placeholder="E.g.: ENPC"
-                  autocomplete="organization"
-                  required
-                />
+                <label for="institution-input">Your institution:</label>
+                <select id="institution-input" name="institution" required>
+                  <option value="">Select institution</option>
+                  <option value="FIHAC">FIHAC</option>
+                  <option value="ENPC">ENPC</option>
+                  <option value="TUD">TUD</option>
+                  <option value="URN">URN</option>
+                  <option value="UALG">UALG</option>
+                  <option value="ICM-CSIC">ICM-CSIC</option>
+                  <option value="CNES">CNES</option>
+                  <option value="UBO">UBO</option>
+                  <option value="UC">UC</option>
+                  <option value="UPC">UPC</option>
+                  <option value="OHB DS">OHB DS</option>
+                  <option value="JBA">JBA</option>
+                  <option value="CU">CU</option>
+                  <option value="UOM">UOM</option>
+                  <option value="UNSW">UNSW</option>
+                  <option value="USGS">USGS</option>
+                  <option value="UFSC">UFSC</option>
+                  <option value="DUKE">DUKE</option>
+                  <option value="CSIRO">CSIRO</option>
+                  <option value="UoA">UoA</option>
+                </select>
               </div>
 
               <button type="button" class="btn btn-secondary" id="load-secondments-btn">
