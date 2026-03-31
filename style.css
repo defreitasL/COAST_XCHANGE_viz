@@ -769,15 +769,15 @@ code {
 .secondments-table-head,
 .secondments-row {
   display: grid;
-  grid-template-columns: 1.15fr 0.9fr 1fr 0.62fr 0.62fr 0.72fr 1.5fr 0.6fr;
+  grid-template-columns: 1.15fr 0.7fr 0.8fr 0.52fr 0.52fr 0.5fr 2.5fr 0.5fr;
   gap: 12px;
   align-items: start;
 }
 
 .secondments-table-head {
-  padding: 0 2px 6px;
+  padding: 0 1px 6px;
   border-bottom: 1px solid var(--line);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text);
 }
 
@@ -785,13 +785,15 @@ code {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: 12px;
 }
 
 .secondments-row {
   padding: 14px;
-  border: 1px solid var(--line);
+  border: 3px solid var(--line);
   border-radius: 16px;
   background: white;
+  align-items: center;
 }
 
 .row-action {
@@ -804,7 +806,7 @@ code {
 .btn-danger {
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid #efcaca;
+  border: 3px solid #efcaca;
   background: #fff5f5;
   color: #a61b1b;
   border-radius: 999px;
