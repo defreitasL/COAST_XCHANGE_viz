@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 
@@ -162,7 +163,7 @@
             <p><strong>Example 1:</strong> (M22–M26 - Phase 2 - WP3) will develop skills CUSS and CUSE by building a multi-model framework coupled with a climate emulator to propagate quantified structural uncertainties (WP2) alongside climate variability.</p>
           </div>
           <div class="placeholder-block medium">
-            <p><strong>Example 2:</strong> CAMILO -> WRITE ONE HERE!!</p>
+            <p><strong>Example 2:</strong> (M24–M27 - Phase 2 - WP2) will develop skills OMSS and OMSE by designing and implementing a benchmark comparison of shoreline evolution models using IH-SET across morphodynamically diverse beaches along the southeastern Australian coast, including calibration, performance evaluation, and uncertainty analysis across contrasting coastal settings.</p>
         </div>
       </div>
     </section>
@@ -285,6 +286,69 @@
       </div>
     </section>
 
+    <section id="submit-secondments" class="section alt">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Secondments</p>
+          <h2>Submit or edit secondments</h2>
+          <p>
+            Enter your institution to load existing secondments, edit them, add new ones, and save all rows for that institution.
+          </p>
+        </div>
+
+        <div class="card secondments-card">
+          <form id="secondments-form">
+            <div class="secondments-topbar">
+              <div class="secondments-field institution-field">
+                <label for="institution-input">Your institution</label>
+                <input
+                  id="institution-input"
+                  name="institution"
+                  type="text"
+                  placeholder="E.g.: ENPC"
+                  autocomplete="organization"
+                  required
+                />
+              </div>
+
+              <button type="button" class="btn btn-secondary" id="load-secondments-btn">
+                Load existing secondments
+              </button>
+            </div>
+
+            <div id="secondments-status" class="secondments-status" aria-live="polite"></div>
+
+            <div class="secondments-table-shell">
+              <div class="secondments-table-head">
+                <div>Name</div>
+                <div>Project phase</div>
+                <div>Host institution</div>
+                <div>M# (start)</div>
+                <div>M# (end)</div>
+                <div>WP</div>
+                <div>Secondment description</div>
+                <div>Action</div>
+              </div>
+
+              <div id="participants-rows" class="participants-rows"></div>
+            </div>
+
+            <div class="secondments-actions">
+              <button type="button" class="btn btn-secondary" id="add-participant-btn">
+                Add participant
+              </button>
+            </div>
+
+            <div class="secondments-bottom">
+              <div class="cf-turnstile" data-sitekey="0x4AAAAAACyXkfnuqv2E76Os"></div>
+              <button type="submit" class="btn btn-primary" id="submit-secondments-btn">
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
 
     <section id="end" class="section">
       <div class="container">
@@ -327,57 +391,615 @@
   });
 </script>
 
-</body>
-</html>
-
-
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("img-modal");
-  const modalImg = document.getElementById("img-modal-content");
-  const closeBtn = document.querySelector(".img-modal-close");
+  const SECONDMENTS_ENDPOINT = window.SECONDMENTS_ENDPOINT || "";
+  const HOST_INSTITUTIONS = [
+    "FIHAC",
+    "ENPC",
+    "TUD",
+    "URN",
+    "UALG",
+    "ICM-CSIC",
+    "CNES",
+    "UBO",
+    "UC",
+    "UPC",
+    "OHB DS",
+    "JBA",
+    "CU",
+    "UOM",
+    "UNSW",
+    "USGS",
+    "UFSC",
+    "DUKE",
+    "CSIRO",
+    "UoA"
+  ];
 
-  function openImage(src, alt) {
-    modalImg.src = src;
-    modalImg.alt = alt || "Expanded screenshot";
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
+  const PHASE_OPTIONS = ["Phase 1", "Phase 2", "Phase 3"];
+
+  function escapeCsvValue(value) {
+    const text = String(value ?? "").replace(/\n/g, " ").trim();
+    return '"' + text.replace(/"/g, '""') + '"';
   }
 
-  document.querySelectorAll(".step-figure").forEach(fig => {
-    const img = fig.querySelector("img");
-    const btn = fig.querySelector(".zoom-btn");
+  function downloadCsv(filename, content) {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 
-    if (img) {
-      img.addEventListener("click", () => openImage(img.src, img.alt));
-    }
-    if (btn && img) {
-      btn.addEventListener("click", () => openImage(img.src, img.alt));
-    }
-  });
+  function createSelect(name, options, placeholder) {
+    const select = document.createElement("select");
+    select.name = name;
+    select.required = true;
 
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
+    const placeholderOption = document.createElement("option");
+    placeholderOption.value = "";
+    placeholderOption.textContent = placeholder;
+    placeholderOption.disabled = true;
+    placeholderOption.selected = true;
+    select.appendChild(placeholderOption);
+
+    options.forEach(optionValue => {
+      const option = document.createElement("option");
+      option.value = optionValue;
+      option.textContent = optionValue;
+      select.appendChild(option);
     });
+
+    return select;
   }
 
-  if (modal) {
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.classList.remove("open");
-        modal.setAttribute("aria-hidden", "true");
+  function createParticipantRow(rowIndex) {
+    const row = document.createElement("div");
+    row.className = "participant-grid participant-row";
+    row.dataset.rowIndex = rowIndex;
+
+    const nameWrap = document.createElement("div");
+    nameWrap.className = "field-cell";
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.name = "participantName";
+    nameInput.placeholder = "Participant name";
+    nameInput.required = true;
+    nameWrap.appendChild(nameInput);
+
+    const phaseWrap = document.createElement("div");
+    phaseWrap.className = "field-cell";
+    phaseWrap.appendChild(createSelect("projectPhase", PHASE_OPTIONS, "Select phase"));
+
+    const hostWrap = document.createElement("div");
+    hostWrap.className = "field-cell";
+    hostWrap.appendChild(createSelect("hostInstitution", HOST_INSTITUTIONS, "Select host"));
+
+    const monthStartWrap = document.createElement("div");
+    monthStartWrap.className = "field-cell";
+    const monthStartInput = document.createElement("input");
+    monthStartInput.type = "number";
+    monthStartInput.name = "monthStart";
+    monthStartInput.min = "4";
+    monthStartInput.max = "47";
+    monthStartInput.placeholder = "4-47";
+    monthStartInput.required = true;
+    monthStartInput.inputMode = "numeric";
+    monthStartWrap.appendChild(monthStartInput);
+
+    const monthEndWrap = document.createElement("div");
+    monthEndWrap.className = "field-cell";
+    const monthEndInput = document.createElement("input");
+    monthEndInput.type = "number";
+    monthEndInput.name = "monthEnd";
+    monthEndInput.min = "5";
+    monthEndInput.max = "48";
+    monthEndInput.placeholder = "5-48";
+    monthEndInput.required = true;
+    monthEndInput.inputMode = "numeric";
+    monthEndWrap.appendChild(monthEndInput);
+
+    const descriptionWrap = document.createElement("div");
+    descriptionWrap.className = "field-cell";
+    const descriptionInput = document.createElement("textarea");
+    descriptionInput.name = "secondmentDescription";
+    descriptionInput.placeholder = "Describe the secondment";
+    descriptionInput.rows = 3;
+    descriptionInput.required = true;
+    descriptionWrap.appendChild(descriptionInput);
+
+    const actionWrap = document.createElement("div");
+    actionWrap.className = "field-cell action-cell";
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "row-remove-btn";
+    removeBtn.textContent = "Delete";
+    removeBtn.addEventListener("click", () => {
+      row.remove();
+      const totalRows = document.querySelectorAll(".participant-row").length;
+      if (totalRows === 0) {
+        addParticipantRow();
+      }
+      refreshDeleteButtons();
+    });
+    actionWrap.appendChild(removeBtn);
+
+    [
+      nameWrap,
+      phaseWrap,
+      hostWrap,
+      monthStartWrap,
+      monthEndWrap,
+      descriptionWrap,
+      actionWrap
+    ].forEach(cell => row.appendChild(cell));
+
+    return row;
+  }
+
+  function refreshDeleteButtons() {
+    const rows = document.querySelectorAll(".participant-row");
+    rows.forEach(row => {
+      const button = row.querySelector(".row-remove-btn");
+      if (button) {
+        button.disabled = rows.length === 1;
       }
     });
   }
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal) {
-      modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
+  function addParticipantRow() {
+    const list = document.getElementById("participants-list");
+    if (!list) return;
+    const nextIndex = list.querySelectorAll(".participant-row").length + 1;
+    list.appendChild(createParticipantRow(nextIndex));
+    refreshDeleteButtons();
+  }
+
+  function collectParticipantRows() {
+    return Array.from(document.querySelectorAll(".participant-row")).map((row, index) => {
+      const getValue = selector => row.querySelector(`[name="${selector}"]`)?.value?.trim() || "";
+      return {
+        rowNumber: index + 1,
+        name: getValue("participantName"),
+        phase: getValue("projectPhase"),
+        hostInstitution: getValue("hostInstitution"),
+        monthStart: getValue("monthStart"),
+        monthEnd: getValue("monthEnd"),
+        description: getValue("secondmentDescription")
+      };
+    });
+  }
+
+  function validateSecondments(institution, participants) {
+    const errors = [];
+
+    if (!institution) {
+      errors.push("Please enter your institution.");
+    }
+
+    participants.forEach(participant => {
+      if (!participant.name || !participant.phase || !participant.hostInstitution || !participant.monthStart || !participant.monthEnd || !participant.description) {
+        errors.push(`Row ${participant.rowNumber}: complete all fields.`);
+        return;
+      }
+
+      const monthStart = Number(participant.monthStart);
+      const monthEnd = Number(participant.monthEnd);
+
+      if (!Number.isInteger(monthStart) || monthStart < 4 || monthStart > 47) {
+        errors.push(`Row ${participant.rowNumber}: M# (start) must be an integer between 4 and 47.`);
+      }
+
+      if (!Number.isInteger(monthEnd) || monthEnd < 5 || monthEnd > 48) {
+        errors.push(`Row ${participant.rowNumber}: M# (end) must be an integer between 5 and 48.`);
+      }
+
+      if (Number.isInteger(monthStart) && Number.isInteger(monthEnd) && monthEnd <= monthStart) {
+        errors.push(`Row ${participant.rowNumber}: M# (end) must be greater than M# (start).`);
+      }
+    });
+
+    return errors;
+  }
+
+  function buildCsv(institution, participants) {
+    const header = [
+      "submission_timestamp",
+      "sending_institution",
+      "participant_name",
+      "project_phase",
+      "host_institution",
+      "month_start",
+      "month_end",
+      "secondment_description"
+    ];
+
+    const rows = participants.map(participant => [
+      new Date().toISOString(),
+      institution,
+      participant.name,
+      participant.phase,
+      participant.hostInstitution,
+      participant.monthStart,
+      participant.monthEnd,
+      participant.description
+    ]);
+
+    return [header, ...rows]
+      .map(columns => columns.map(escapeCsvValue).join(","))
+      .join("\n");
+  }
+
+  async function handleSecondmentsSubmit(event) {
+    event.preventDefault();
+
+    const statusBox = document.getElementById("secondments-status");
+    const form = document.getElementById("secondments-form");
+    const institution = document.getElementById("sending-institution")?.value?.trim() || "";
+    const participants = collectParticipantRows();
+    const errors = validateSecondments(institution, participants);
+
+    statusBox.className = "secondments-status";
+    statusBox.innerHTML = "";
+
+    if (errors.length) {
+      statusBox.classList.add("error");
+      statusBox.innerHTML = errors.map(error => `<div>${error}</div>`).join("");
+      return;
+    }
+
+    const payload = {
+      institution,
+      participants,
+      submittedAt: new Date().toISOString()
+    };
+    const csv = buildCsv(institution, participants);
+
+    if (!SECONDMENTS_ENDPOINT) {
+      downloadCsv("secondments_submission.csv", csv);
+      statusBox.classList.add("success");
+      statusBox.innerHTML = "CSV generated successfully. To write directly into GitHub, connect this form to a secure backend endpoint.";
+      return;
+    }
+
+    try {
+      const response = await fetch(SECONDMENTS_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ...payload, csv })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Submission failed with status ${response.status}`);
+      }
+
+      statusBox.classList.add("success");
+      statusBox.innerHTML = "Submission sent successfully.";
+      form.reset();
+      document.getElementById("participants-list").innerHTML = "";
+      addParticipantRow();
+    } catch (error) {
+      statusBox.classList.add("error");
+      statusBox.innerHTML = `The form could not reach the submission endpoint. ${error.message}`;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const addParticipantBtn = document.getElementById("add-participant-btn");
+    const form = document.getElementById("secondments-form");
+
+    if (addParticipantBtn) {
+      addParticipantBtn.addEventListener("click", addParticipantRow);
+    }
+
+    if (form) {
+      addParticipantRow();
+      form.addEventListener("submit", handleSecondmentsSubmit);
     }
   });
+</script>
+</body>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("img-modal");
+  const modalImg = document.getElementById("img-modal-content");
+  const closeBtn = document.querySelector(".img-modal-close");
+
+    function openImage(src, alt) {
+      modalImg.src = src;
+      modalImg.alt = alt || "Expanded screenshot";
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    document.querySelectorAll(".step-figure").forEach(fig => {
+      const img = fig.querySelector("img");
+      const btn = fig.querySelector(".zoom-btn");
+
+      if (img) {
+        img.addEventListener("click", () => openImage(img.src, img.alt));
+      }
+      if (btn && img) {
+        btn.addEventListener("click", () => openImage(img.src, img.alt));
+      }
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      });
+    }
+
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.remove("open");
+          modal.setAttribute("aria-hidden", "true");
+        }
+      });
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+    });
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const SECONDMENTS_ENDPOINT = "https://coast-secondments-api.lucas12-fp.workers.dev";
+
+  const HOST_INSTITUTIONS = [
+    "ENPC",
+    "UC",
+    "TUD",
+    "UFSC",
+    "FIHAC",
+    "IHCantabria",
+    "OesteCIM"
+  ];
+
+  const PHASES = ["Phase 1", "Phase 2", "Phase 3"];
+  const WPS = ["WP1", "WP2", "WP3"];
+
+  const form = document.getElementById("secondments-form");
+  if (!form) return;
+
+  const institutionInput = document.getElementById("institution-input");
+  const loadBtn = document.getElementById("load-secondments-btn");
+  const addBtn = document.getElementById("add-participant-btn");
+  const rowsWrap = document.getElementById("participants-rows");
+  const statusBox = document.getElementById("secondments-status");
+  const submitBtn = document.getElementById("submit-secondments-btn");
+
+  function setStatus(message, type = "") {
+    statusBox.textContent = message || "";
+    statusBox.classList.remove("is-error", "is-success");
+    if (type) statusBox.classList.add(type);
+  }
+
+  function phaseOptions(selected = "") {
+    return `
+      <option value="">Select phase</option>
+      ${PHASES.map(p => `<option value="${p}" ${selected === p ? "selected" : ""}>${p}</option>`).join("")}
+    `;
+  }
+
+  function hostOptions(selected = "") {
+    return `
+      <option value="">Select institution</option>
+      ${HOST_INSTITUTIONS.map(h => `<option value="${h}" ${selected === h ? "selected" : ""}>${h}</option>`).join("")}
+    `;
+  }
+
+  function wpOptions(selected = "") {
+    return `
+      <option value="">Select WP</option>
+      ${WPS.map(wp => `<option value="${wp}" ${selected === wp ? "selected" : ""}>${wp}</option>`).join("")}
+    `;
+  }
+
+  function addParticipantRow(data = {}) {
+    const row = document.createElement("div");
+    row.className = "secondments-row";
+
+    row.innerHTML = `
+      <div>
+        <input type="text" class="participant-name" placeholder="Participant name" value="${data.name || ""}" required />
+      </div>
+      <div>
+        <select class="participant-phase" required>
+          ${phaseOptions(data.project_phase || "")}
+        </select>
+      </div>
+      <div>
+        <select class="participant-host" required>
+          ${hostOptions(data.host_institution || "")}
+        </select>
+      </div>
+      <div>
+        <input type="number" class="participant-mstart" min="4" max="47" step="1" placeholder="4–47" value="${data.m_start || ""}" required />
+      </div>
+      <div>
+        <input type="number" class="participant-mend" min="5" max="48" step="1" placeholder="5–48" value="${data.m_end || ""}" required />
+      </div>
+      <div>
+        <select class="participant-wp" required>
+          ${wpOptions(data.wp || "")}
+        </select>
+      </div>
+      <div>
+        <textarea class="participant-description" placeholder="Describe the secondment" required>${data.secondment_description || ""}</textarea>
+      </div>
+      <div class="row-action">
+        <button type="button" class="btn-danger remove-row-btn">Delete</button>
+      </div>
+    `;
+
+    row.querySelector(".remove-row-btn").addEventListener("click", () => {
+      row.remove();
+      ensureAtLeastOneRow();
+    });
+
+    rowsWrap.appendChild(row);
+  }
+
+  function ensureAtLeastOneRow() {
+    if (!rowsWrap.children.length) {
+      addParticipantRow();
+    }
+  }
+
+  function clearRows() {
+    rowsWrap.innerHTML = "";
+  }
+
+  function collectRows() {
+    const rows = [...rowsWrap.querySelectorAll(".secondments-row")];
+
+    return rows.map(row => ({
+      name: row.querySelector(".participant-name").value.trim(),
+      project_phase: row.querySelector(".participant-phase").value,
+      host_institution: row.querySelector(".participant-host").value,
+      m_start: Number(row.querySelector(".participant-mstart").value),
+      m_end: Number(row.querySelector(".participant-mend").value),
+      wp: row.querySelector(".participant-wp").value,
+      secondment_description: row.querySelector(".participant-description").value.trim()
+    }));
+  }
+
+  function validateRows(participants) {
+    if (!participants.length) {
+      throw new Error("Add at least one participant.");
+    }
+
+    participants.forEach((p, idx) => {
+      const n = idx + 1;
+      if (!p.name) throw new Error(`Row ${n}: name is required.`);
+      if (!PHASES.includes(p.project_phase)) throw new Error(`Row ${n}: select a valid phase.`);
+      if (!p.host_institution) throw new Error(`Row ${n}: select a host institution.`);
+      if (!Number.isInteger(p.m_start) || p.m_start < 4 || p.m_start > 47) throw new Error(`Row ${n}: M# start must be between 4 and 47.`);
+      if (!Number.isInteger(p.m_end) || p.m_end < 5 || p.m_end > 48) throw new Error(`Row ${n}: M# end must be between 5 and 48.`);
+      if (p.m_end <= p.m_start) throw new Error(`Row ${n}: M# end must be greater than M# start.`);
+      if (!WPS.includes(p.wp)) throw new Error(`Row ${n}: select WP1, WP2 or WP3.`);
+      if (!p.secondment_description) throw new Error(`Row ${n}: description is required.`);
+    });
+  }
+
+  async function loadInstitutionSecondments() {
+    const institution = institutionInput.value.trim();
+    if (!institution) {
+      setStatus("Please enter an institution first.", "is-error");
+      return;
+    }
+
+    setStatus("Loading existing secondments...");
+
+    const response = await fetch(
+      `${SECONDMENTS_ENDPOINT}/api/secondments?institution=${encodeURIComponent(institution)}`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Could not load secondments.");
+    }
+
+    clearRows();
+
+    if (data.participants && data.participants.length) {
+      data.participants.forEach(addParticipantRow);
+      setStatus(`Loaded ${data.participants.length} secondment(s) for ${institution}.`, "is-success");
+    } else {
+      addParticipantRow();
+      setStatus(`No existing secondments found for ${institution}. You can create them now.`, "is-success");
+    }
+  }
+
+  loadBtn.addEventListener("click", async () => {
+    try {
+      await loadInstitutionSecondments();
+    } catch (err) {
+      setStatus(err.message || "Could not load secondments.", "is-error");
+    }
+  });
+
+  institutionInput.addEventListener("change", async () => {
+    if (!institutionInput.value.trim()) return;
+    try {
+      await loadInstitutionSecondments();
+    } catch (err) {
+      setStatus(err.message || "Could not load secondments.", "is-error");
+    }
+  });
+
+  addBtn.addEventListener("click", () => addParticipantRow());
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    try {
+      const institution = institutionInput.value.trim();
+      if (!institution) {
+        throw new Error("Institution is required.");
+      }
+
+      const turnstileToken =
+        document.querySelector('input[name="cf-turnstile-response"]')?.value || "";
+
+      if (!turnstileToken) {
+        throw new Error("Please complete the verification widget.");
+      }
+
+      const participants = collectRows();
+      validateRows(participants);
+
+      submitBtn.disabled = true;
+      setStatus("Saving secondments...");
+
+      const response = await fetch(`${SECONDMENTS_ENDPOINT}/api/secondments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          institution,
+          participants,
+          turnstileToken
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Could not save secondments.");
+      }
+
+      setStatus(`Saved ${data.replaced_with_rows} secondment(s) for ${institution}.`, "is-success");
+
+      if (window.turnstile) {
+        window.turnstile.reset();
+      }
+    } catch (err) {
+      setStatus(err.message || "Could not save secondments.", "is-error");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  addParticipantRow();
 });
 </script>

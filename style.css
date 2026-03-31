@@ -691,3 +691,141 @@ code {
     margin-left: calc((var(--start) - 1) * (100% / 48));
   }
 }
+
+.secondments-card {
+  overflow: hidden;
+}
+
+.secondments-topbar,
+.secondments-actions,
+.secondments-bottom {
+  display: flex;
+  gap: 14px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.secondments-topbar {
+  margin-bottom: 16px;
+}
+
+.secondments-bottom {
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.secondments-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 260px;
+}
+
+.secondments-field label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.secondments-field input,
+.secondments-row input,
+.secondments-row select,
+.secondments-row textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  font: inherit;
+  color: var(--text);
+}
+
+.secondments-row textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.secondments-status {
+  min-height: 24px;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.secondments-status.is-error {
+  color: #b42318;
+}
+
+.secondments-status.is-success {
+  color: #157347;
+}
+
+.secondments-table-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.secondments-table-head,
+.secondments-row {
+  display: grid;
+  grid-template-columns: 1.15fr 0.9fr 1fr 0.62fr 0.62fr 0.72fr 1.5fr 0.6fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.secondments-table-head {
+  padding: 0 2px 6px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 800;
+  color: var(--text);
+}
+
+.participants-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.secondments-row {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+}
+
+.row-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.btn-danger {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #efcaca;
+  background: #fff5f5;
+  color: #a61b1b;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #ffe9e9;
+}
+
+@media (max-width: 1100px) {
+  .secondments-table-head {
+    display: none;
+  }
+
+  .secondments-row {
+    grid-template-columns: 1fr;
+  }
+
+  .row-action {
+    justify-content: flex-start;
+  }
+}
