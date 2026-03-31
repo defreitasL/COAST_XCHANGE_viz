@@ -393,322 +393,6 @@
 
 
 <script>
-  const SECONDMENTS_ENDPOINT = window.SECONDMENTS_ENDPOINT || "";
-  const HOST_INSTITUTIONS = [
-    "FIHAC",
-    "ENPC",
-    "TUD",
-    "URN",
-    "UALG",
-    "ICM-CSIC",
-    "CNES",
-    "UBO",
-    "UC",
-    "UPC",
-    "OHB DS",
-    "JBA",
-    "CU",
-    "UOM",
-    "UNSW",
-    "USGS",
-    "UFSC",
-    "DUKE",
-    "CSIRO",
-    "UoA"
-  ];
-
-  const PHASE_OPTIONS = ["Phase 1", "Phase 2", "Phase 3"];
-
-  function escapeCsvValue(value) {
-    const text = String(value ?? "").replace(/\n/g, " ").trim();
-    return '"' + text.replace(/"/g, '""') + '"';
-  }
-
-  function downloadCsv(filename, content) {
-    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }
-
-  function createSelect(name, options, placeholder) {
-    const select = document.createElement("select");
-    select.name = name;
-    select.required = true;
-
-    const placeholderOption = document.createElement("option");
-    placeholderOption.value = "";
-    placeholderOption.textContent = placeholder;
-    placeholderOption.disabled = true;
-    placeholderOption.selected = true;
-    select.appendChild(placeholderOption);
-
-    options.forEach(optionValue => {
-      const option = document.createElement("option");
-      option.value = optionValue;
-      option.textContent = optionValue;
-      select.appendChild(option);
-    });
-
-    return select;
-  }
-
-  function createParticipantRow(rowIndex) {
-    const row = document.createElement("div");
-    row.className = "participant-grid participant-row";
-    row.dataset.rowIndex = rowIndex;
-
-    const nameWrap = document.createElement("div");
-    nameWrap.className = "field-cell";
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.name = "participantName";
-    nameInput.placeholder = "Participant name";
-    nameInput.required = true;
-    nameWrap.appendChild(nameInput);
-
-    const phaseWrap = document.createElement("div");
-    phaseWrap.className = "field-cell";
-    phaseWrap.appendChild(createSelect("projectPhase", PHASE_OPTIONS, "Select phase"));
-
-    const hostWrap = document.createElement("div");
-    hostWrap.className = "field-cell";
-    hostWrap.appendChild(createSelect("hostInstitution", HOST_INSTITUTIONS, "Select host"));
-
-    const monthStartWrap = document.createElement("div");
-    monthStartWrap.className = "field-cell";
-    const monthStartInput = document.createElement("input");
-    monthStartInput.type = "number";
-    monthStartInput.name = "monthStart";
-    monthStartInput.min = "4";
-    monthStartInput.max = "47";
-    monthStartInput.placeholder = "4-47";
-    monthStartInput.required = true;
-    monthStartInput.inputMode = "numeric";
-    monthStartWrap.appendChild(monthStartInput);
-
-    const monthEndWrap = document.createElement("div");
-    monthEndWrap.className = "field-cell";
-    const monthEndInput = document.createElement("input");
-    monthEndInput.type = "number";
-    monthEndInput.name = "monthEnd";
-    monthEndInput.min = "5";
-    monthEndInput.max = "48";
-    monthEndInput.placeholder = "5-48";
-    monthEndInput.required = true;
-    monthEndInput.inputMode = "numeric";
-    monthEndWrap.appendChild(monthEndInput);
-
-    const descriptionWrap = document.createElement("div");
-    descriptionWrap.className = "field-cell";
-    const descriptionInput = document.createElement("textarea");
-    descriptionInput.name = "secondmentDescription";
-    descriptionInput.placeholder = "Describe the secondment";
-    descriptionInput.rows = 3;
-    descriptionInput.required = true;
-    descriptionWrap.appendChild(descriptionInput);
-
-    const actionWrap = document.createElement("div");
-    actionWrap.className = "field-cell action-cell";
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.className = "row-remove-btn";
-    removeBtn.textContent = "Delete";
-    removeBtn.addEventListener("click", () => {
-      row.remove();
-      const totalRows = document.querySelectorAll(".participant-row").length;
-      if (totalRows === 0) {
-        addParticipantRow();
-      }
-      refreshDeleteButtons();
-    });
-    actionWrap.appendChild(removeBtn);
-
-    [
-      nameWrap,
-      phaseWrap,
-      hostWrap,
-      monthStartWrap,
-      monthEndWrap,
-      descriptionWrap,
-      actionWrap
-    ].forEach(cell => row.appendChild(cell));
-
-    return row;
-  }
-
-  function refreshDeleteButtons() {
-    const rows = document.querySelectorAll(".participant-row");
-    rows.forEach(row => {
-      const button = row.querySelector(".row-remove-btn");
-      if (button) {
-        button.disabled = rows.length === 1;
-      }
-    });
-  }
-
-  function addParticipantRow() {
-    const list = document.getElementById("participants-list");
-    if (!list) return;
-    const nextIndex = list.querySelectorAll(".participant-row").length + 1;
-    list.appendChild(createParticipantRow(nextIndex));
-    refreshDeleteButtons();
-  }
-
-  function collectParticipantRows() {
-    return Array.from(document.querySelectorAll(".participant-row")).map((row, index) => {
-      const getValue = selector => row.querySelector(`[name="${selector}"]`)?.value?.trim() || "";
-      return {
-        rowNumber: index + 1,
-        name: getValue("participantName"),
-        phase: getValue("projectPhase"),
-        hostInstitution: getValue("hostInstitution"),
-        monthStart: getValue("monthStart"),
-        monthEnd: getValue("monthEnd"),
-        description: getValue("secondmentDescription")
-      };
-    });
-  }
-
-  function validateSecondments(institution, participants) {
-    const errors = [];
-
-    if (!institution) {
-      errors.push("Please enter your institution.");
-    }
-
-    participants.forEach(participant => {
-      if (!participant.name || !participant.phase || !participant.hostInstitution || !participant.monthStart || !participant.monthEnd || !participant.description) {
-        errors.push(`Row ${participant.rowNumber}: complete all fields.`);
-        return;
-      }
-
-      const monthStart = Number(participant.monthStart);
-      const monthEnd = Number(participant.monthEnd);
-
-      if (!Number.isInteger(monthStart) || monthStart < 4 || monthStart > 47) {
-        errors.push(`Row ${participant.rowNumber}: M# (start) must be an integer between 4 and 47.`);
-      }
-
-      if (!Number.isInteger(monthEnd) || monthEnd < 5 || monthEnd > 48) {
-        errors.push(`Row ${participant.rowNumber}: M# (end) must be an integer between 5 and 48.`);
-      }
-
-      if (Number.isInteger(monthStart) && Number.isInteger(monthEnd) && monthEnd <= monthStart) {
-        errors.push(`Row ${participant.rowNumber}: M# (end) must be greater than M# (start).`);
-      }
-    });
-
-    return errors;
-  }
-
-  function buildCsv(institution, participants) {
-    const header = [
-      "submission_timestamp",
-      "sending_institution",
-      "participant_name",
-      "project_phase",
-      "host_institution",
-      "month_start",
-      "month_end",
-      "secondment_description"
-    ];
-
-    const rows = participants.map(participant => [
-      new Date().toISOString(),
-      institution,
-      participant.name,
-      participant.phase,
-      participant.hostInstitution,
-      participant.monthStart,
-      participant.monthEnd,
-      participant.description
-    ]);
-
-    return [header, ...rows]
-      .map(columns => columns.map(escapeCsvValue).join(","))
-      .join("\n");
-  }
-
-  async function handleSecondmentsSubmit(event) {
-    event.preventDefault();
-
-    const statusBox = document.getElementById("secondments-status");
-    const form = document.getElementById("secondments-form");
-    const institution = document.getElementById("sending-institution")?.value?.trim() || "";
-    const participants = collectParticipantRows();
-    const errors = validateSecondments(institution, participants);
-
-    statusBox.className = "secondments-status";
-    statusBox.innerHTML = "";
-
-    if (errors.length) {
-      statusBox.classList.add("error");
-      statusBox.innerHTML = errors.map(error => `<div>${error}</div>`).join("");
-      return;
-    }
-
-    const payload = {
-      institution,
-      participants,
-      submittedAt: new Date().toISOString()
-    };
-    const csv = buildCsv(institution, participants);
-
-    if (!SECONDMENTS_ENDPOINT) {
-      downloadCsv("secondments_submission.csv", csv);
-      statusBox.classList.add("success");
-      statusBox.innerHTML = "CSV generated successfully. To write directly into GitHub, connect this form to a secure backend endpoint.";
-      return;
-    }
-
-    try {
-      const response = await fetch(SECONDMENTS_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ ...payload, csv })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Submission failed with status ${response.status}`);
-      }
-
-      statusBox.classList.add("success");
-      statusBox.innerHTML = "Submission sent successfully.";
-      form.reset();
-      document.getElementById("participants-list").innerHTML = "";
-      addParticipantRow();
-    } catch (error) {
-      statusBox.classList.add("error");
-      statusBox.innerHTML = `The form could not reach the submission endpoint. ${error.message}`;
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const addParticipantBtn = document.getElementById("add-participant-btn");
-    const form = document.getElementById("secondments-form");
-
-    if (addParticipantBtn) {
-      addParticipantBtn.addEventListener("click", addParticipantRow);
-    }
-
-    if (form) {
-      addParticipantRow();
-      form.addEventListener("submit", handleSecondmentsSubmit);
-    }
-  });
-</script>
-</body>
-</html>
-
-<script>
   document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("img-modal");
   const modalImg = document.getElementById("img-modal-content");
@@ -763,13 +447,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const SECONDMENTS_ENDPOINT = "https://coast-secondments-api.lucas12-fp.workers.dev";
 
   const HOST_INSTITUTIONS = [
-    "ENPC",
-    "UC",
-    "TUD",
-    "UFSC",
     "FIHAC",
-    "IHCantabria",
-    "OesteCIM"
+    "ENPC",
+    "TUD",
+    "URN",
+    "UALG",
+    "ICM-CSIC",
+    "CNES",
+    "UBO",
+    "UC",
+    "UPC",
+    "OHB DS",
+    "JBA",
+    "CU",
+    "UOM",
+    "UNSW",
+    "USGS",
+    "UFSC",
+    "DUKE",
+    "CSIRO",
+    "UoA"
   ];
 
   const PHASES = ["Phase 1", "Phase 2", "Phase 3"];
@@ -807,7 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function wpOptions(selected = "") {
     return `
-      <option value="">Select WP</option>
+      <option value="">WP</option>
       ${WPS.map(wp => `<option value="${wp}" ${selected === wp ? "selected" : ""}>${wp}</option>`).join("")}
     `;
   }
@@ -1003,3 +700,7 @@ document.addEventListener("DOMContentLoaded", () => {
   addParticipantRow();
 });
 </script>
+
+</body>
+</html>
+
