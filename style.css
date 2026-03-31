@@ -10,7 +10,7 @@
   --radius-xl: 30px;
   --radius-lg: 22px;
   --radius-md: 16px;
-  --max-width: 1200px;
+  --max-width: 1600px;
 }
 
 * { box-sizing: border-box; }
@@ -827,5 +827,78 @@ code {
 
   .row-action {
     justify-content: flex-start;
+  }
+}
+
+.container-wide {
+  width: min(calc(100% - 40px), 1600px);
+}
+
+.stats-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stats-card {
+  padding: 28px;
+}
+
+.stats-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.stats-card-head p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.stats-feedback {
+  min-height: 24px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.stats-feedback.is-loading {
+  color: var(--muted);
+}
+
+.stats-feedback.is-success {
+  color: #157347;
+}
+
+.stats-feedback.is-error {
+  color: #b42318;
+}
+
+.stats-chart {
+  width: 100%;
+  min-height: 420px;
+}
+
+.stats-chart-tall {
+  min-height: 500px;
+}
+
+@media (max-width: 720px) {
+  .container-wide {
+    width: min(calc(100% - 26px), 1600px);
+  }
+
+  .stats-card {
+    padding: 20px;
+  }
+
+  .stats-chart {
+    min-height: 360px;
+  }
+
+  .stats-chart-tall {
+    min-height: 420px;
   }
 }

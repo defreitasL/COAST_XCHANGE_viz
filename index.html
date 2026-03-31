@@ -9,6 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 
 
@@ -280,7 +283,16 @@
         <div class="card">
           <h2>Recommendations</h2>
           <div class="placeholder-block">
-            <p>Try to link each secondment to 1–3 skills, depending on its duration. Do not select too many skills for a single short secondment. PhD students should focus on developing a few key skills rather than spreading themselves too thin across many areas, and each secondment should last at least 3 months. It is valuable to link a secondment to more than one WP in order to ensure interdisciplinarity. Do not be too ambitious in the number of skills selected or in the scope of the description; all secondments should be feasible within the planned timeframe.</p>
+            <ul class="clean-list">
+              <li>Try to link each secondment to 1–3 skills, depending on its duration.</li>
+              <li>Do not select too many skills for a single short secondment.</li>
+              <li>PhD students should focus on developing a few key skills rather than spreading themselves too thin across many areas.</li>
+              <li>PhD students secondments should last at least 3 months.</li>
+              <li>It is valuable to link a secondment to more than one WP in order to ensure interdisciplinarity.</li>
+              <li>Try to distribute secondments across the project timeline.</li>
+              <li>Try to keep a limit of 30% of secondments from your institution to non-beneficiary hosts (UNSW, USGS, UFSC, DUKE, CSIRO, UoA).</li>
+              <li>Do not be too ambitious in the number of skills selected or in the scope of the description; all secondments should be feasible within the planned timeframe.</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -346,6 +358,52 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="live-stats" class="section">
+      <div class="container container-wide">
+        <div class="section-heading">
+          <p class="section-kicker">Live stats</p>
+          <h2>Live secondment statistics</h2>
+          <p>
+            These charts are generated directly from the live secondments CSV stored in the cloud and update automatically as new entries are submitted.
+          </p>
+        </div>
+
+        <div class="stats-stack">
+          <div class="card stats-card">
+            <div class="stats-card-head">
+              <div>
+                <h3>Secondments across the project timeline</h3>
+                <p>Monthly count of active secondments, stacked by project phase across M1–M48.</p>
+              </div>
+            </div>
+            <div id="stats-feedback" class="stats-feedback" aria-live="polite"></div>
+            <div id="phase-timeline-chart" class="stats-chart stats-chart-tall"></div>
+          </div>
+
+          <div class="card stats-card">
+            <div class="stats-card-head">
+              <div>
+                <h3>Secondments by sending institution</h3>
+                <p>Comparison between the number of secondments and secondment-months for each institution.</p>
+              </div>
+            </div>
+            <div id="institution-stats-chart" class="stats-chart"></div>
+          </div>
+
+          <div class="card stats-card">
+            <div class="stats-card-head">
+              <div>
+                <h3>Secondments by host institution</h3>
+                <p>Comparison between the number of hosted secondments and hosted secondment-months for each institution.</p>
+              </div>
+            </div>
+            <div id="host-stats-chart" class="stats-chart"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -490,14 +548,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function phaseOptions(selected = "") {
     return `
-      <option value="">Select phase</option>
+      <option value="">phase</option>
       ${PHASES.map(p => `<option value="${p}" ${selected === p ? "selected" : ""}>${p}</option>`).join("")}
     `;
   }
 
   function hostOptions(selected = "") {
     return `
-      <option value="">Select institution</option>
+      <option value="">Institution</option>
       ${HOST_INSTITUTIONS.map(h => `<option value="${h}" ${selected === h ? "selected" : ""}>${h}</option>`).join("")}
     `;
   }
@@ -700,6 +758,349 @@ document.addEventListener("DOMContentLoaded", () => {
   addParticipantRow();
 });
 </script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const SECONDMENTS_ENDPOINT = "https://coast-secondments-api.lucas12-fp.workers.dev";
+  const CSV_URL = `${SECONDMENTS_ENDPOINT}/api/secondments.csv`;
+
+  const PHASE_COLORS = {
+    "Phase 1": "#1f6fb2",
+    "Phase 2": "#2f9b68",
+    "Phase 3": "#d7892b"
+  };
+
+  const METRIC_COLORS = {
+    secondments: "#1f6fb2",
+    months: "#7f8ea3"
+  };
+
+  const feedbackEl = document.getElementById("stats-feedback");
+  const phaseChartEl = document.getElementById("phase-timeline-chart");
+  const institutionChartEl = document.getElementById("institution-stats-chart");
+  const hostChartEl = document.getElementById("host-stats-chart");
+
+  if (!phaseChartEl || !institutionChartEl || !hostChartEl || !window.Plotly || !window.Papa) {
+    return;
+  }
+
+  function setStatsFeedback(message = "", type = "") {
+    if (!feedbackEl) return;
+    feedbackEl.textContent = message;
+    feedbackEl.classList.remove("is-error", "is-success", "is-loading");
+    if (type) feedbackEl.classList.add(type);
+  }
+
+  function normaliseKey(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .replace(/[()#]/g, "")
+      .replace(/\u2013|\u2014/g, "-");
+  }
+
+  function getField(row, candidates) {
+    const rowKeys = Object.keys(row);
+    for (const candidate of candidates) {
+      const target = normaliseKey(candidate);
+      const found = rowKeys.find((key) => normaliseKey(key) === target);
+      if (found) return row[found];
+    }
+    return "";
+  }
+
+  function parseInteger(value) {
+    const num = Number.parseInt(String(value ?? "").trim(), 10);
+    return Number.isFinite(num) ? num : null;
+  }
+
+  function cleanRows(rows) {
+    return rows
+      .map((row) => {
+        const institution = String(getField(row, ["Institution"])).trim();
+        const hostInstitution = String(getField(row, ["Host institution", "Host Institution"])).trim();
+        const projectPhase = String(getField(row, ["Project phase", "Project Phase"])).trim();
+        const startMonth = parseInteger(getField(row, ["M# (start)", "M start", "M# start"]));
+        const endMonth = parseInteger(getField(row, ["M# (end)", "M end", "M# end"]));
+
+        return {
+          institution,
+          hostInstitution,
+          projectPhase,
+          startMonth,
+          endMonth
+        };
+      })
+      .filter((row) =>
+        row.institution &&
+        row.hostInstitution &&
+        row.projectPhase &&
+        Number.isInteger(row.startMonth) &&
+        Number.isInteger(row.endMonth) &&
+        row.endMonth >= row.startMonth
+      );
+  }
+
+  function aggregateTimeline(rows) {
+    const months = Array.from({ length: 48 }, (_, i) => i + 1);
+    const phases = ["Phase 1", "Phase 2", "Phase 3"];
+
+    const counts = {};
+    phases.forEach((phase) => {
+      counts[phase] = months.map(() => 0);
+    });
+
+    rows.forEach((row) => {
+      const phase = row.projectPhase;
+      if (!counts[phase]) return;
+
+      const start = Math.max(1, row.startMonth);
+      const end = Math.min(48, row.endMonth);
+
+      for (let month = start; month <= end; month += 1) {
+        counts[phase][month - 1] += 1;
+      }
+    });
+
+    return { months, phases, counts };
+  }
+
+  function aggregateByGroup(rows, fieldName) {
+    const grouped = new Map();
+
+    rows.forEach((row) => {
+      const label = row[fieldName];
+      const duration = row.endMonth - row.startMonth + 1;
+
+      if (!grouped.has(label)) {
+        grouped.set(label, {
+          label,
+          secondments: 0,
+          secondmentMonths: 0
+        });
+      }
+
+      const entry = grouped.get(label);
+      entry.secondments += 1;
+      entry.secondmentMonths += duration;
+    });
+
+    return Array.from(grouped.values()).sort((a, b) => {
+      if (b.secondments !== a.secondments) return b.secondments - a.secondments;
+      if (b.secondmentMonths !== a.secondmentMonths) return b.secondmentMonths - a.secondmentMonths;
+      return a.label.localeCompare(b.label);
+    });
+  }
+
+  function renderTimelineChart(rows) {
+    const { months, phases, counts } = aggregateTimeline(rows);
+    const xLabels = months.map((month) => `M${month}`);
+
+    const traces = phases.map((phase) => ({
+      type: "bar",
+      name: phase,
+      x: xLabels,
+      y: counts[phase],
+      marker: {
+        color: PHASE_COLORS[phase]
+      },
+      hovertemplate:
+        `<b>${phase}</b><br>` +
+        `Month: %{x}<br>` +
+        `Active secondments: %{y}<extra></extra>`
+    }));
+
+    const totalCounts = months.map((_, idx) =>
+      phases.reduce((sum, phase) => sum + counts[phase][idx], 0)
+    );
+
+    traces.push({
+      type: "scatter",
+      mode: "lines",
+      name: "Total",
+      x: xLabels,
+      y: totalCounts,
+      line: {
+        color: "#14263a",
+        width: 2
+      },
+      hovertemplate:
+        `<b>Total active secondments</b><br>` +
+        `Month: %{x}<br>` +
+        `Total: %{y}<extra></extra>`
+    });
+
+    Plotly.newPlot(
+      phaseChartEl,
+      traces,
+      {
+        barmode: "stack",
+        bargap: 0.12,
+        margin: { t: 10, r: 18, b: 70, l: 60 },
+        paper_bgcolor: "rgba(255,255,255,0)",
+        plot_bgcolor: "white",
+        legend: {
+          orientation: "h",
+          x: 0,
+          y: 1.16
+        },
+        xaxis: {
+          title: "",
+          tickangle: 0,
+          showgrid: false,
+          zeroline: false
+        },
+        yaxis: {
+          title: "Active secondments",
+          gridcolor: "rgba(20,38,58,0.08)",
+          zeroline: false
+        },
+        hoverlabel: {
+          bgcolor: "white",
+          font: { color: "#14263a" }
+        },
+        font: {
+          family: "Inter, Arial, sans-serif",
+          color: "#14263a"
+        }
+      },
+      {
+        responsive: true,
+        displayModeBar: false
+      }
+    );
+  }
+
+  function renderGroupedBarChart(targetEl, dataset, yAxisTitle) {
+    const labels = dataset.map((item) => item.label);
+
+    Plotly.newPlot(
+      targetEl,
+      [
+        {
+          type: "bar",
+          name: "Secondments",
+          x: labels,
+          y: dataset.map((item) => item.secondments),
+          marker: { color: METRIC_COLORS.secondments },
+          hovertemplate:
+            `<b>%{x}</b><br>` +
+            `Secondments: %{y}<extra></extra>`
+        },
+        {
+          type: "bar",
+          name: "Secondment-months",
+          x: labels,
+          y: dataset.map((item) => item.secondmentMonths),
+          marker: { color: METRIC_COLORS.months },
+          hovertemplate:
+            `<b>%{x}</b><br>` +
+            `Secondment-months: %{y}<extra></extra>`
+        }
+      ],
+      {
+        barmode: "group",
+        bargap: 0.22,
+        margin: { t: 10, r: 18, b: 135, l: 60 },
+        paper_bgcolor: "rgba(255,255,255,0)",
+        plot_bgcolor: "white",
+        legend: {
+          orientation: "h",
+          x: 0,
+          y: 1.14
+        },
+        xaxis: {
+          title: "",
+          tickangle: -32,
+          automargin: true,
+          showgrid: false,
+          zeroline: false
+        },
+        yaxis: {
+          title: yAxisTitle,
+          gridcolor: "rgba(20,38,58,0.08)",
+          zeroline: false
+        },
+        hoverlabel: {
+          bgcolor: "white",
+          font: { color: "#14263a" }
+        },
+        font: {
+          family: "Inter, Arial, sans-serif",
+          color: "#14263a"
+        }
+      },
+      {
+        responsive: true,
+        displayModeBar: false
+      }
+    );
+  }
+
+  async function loadLiveStats() {
+    setStatsFeedback("Loading live statistics...", "is-loading");
+
+    try {
+      const response = await fetch(CSV_URL, {
+        method: "GET",
+        headers: {
+          "Accept": "text/csv"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Could not fetch live CSV (${response.status}).`);
+      }
+
+      const csvText = await response.text();
+      const parsed = Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true
+      });
+
+      if (parsed.errors && parsed.errors.length) {
+        throw new Error("The live CSV could not be parsed correctly.");
+      }
+
+      const rows = cleanRows(parsed.data || []);
+
+      if (!rows.length) {
+        setStatsFeedback("No secondment data available yet.", "is-error");
+        phaseChartEl.innerHTML = "";
+        institutionChartEl.innerHTML = "";
+        hostChartEl.innerHTML = "";
+        return;
+      }
+
+      renderTimelineChart(rows);
+      renderGroupedBarChart(
+        institutionChartEl,
+        aggregateByGroup(rows, "institution"),
+        "Count"
+      );
+      renderGroupedBarChart(
+        hostChartEl,
+        aggregateByGroup(rows, "hostInstitution"),
+        "Count"
+      );
+
+      const totalSecondments = rows.length;
+      const totalMonths = rows.reduce((sum, row) => sum + (row.endMonth - row.startMonth + 1), 0);
+      setStatsFeedback(
+        `Live CSV loaded successfully · ${totalSecondments} secondments · ${totalMonths} secondment-months.`,
+        "is-success"
+      );
+    } catch (error) {
+      setStatsFeedback(error.message || "Live statistics could not be loaded.", "is-error");
+    }
+  }
+
+  loadLiveStats();
+});
+</script>
+
 
 </body>
 </html>
