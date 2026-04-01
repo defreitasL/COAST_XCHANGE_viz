@@ -4,18 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>COAST-XCHANGE · Secondment Skills Guide</title>
+  <!-- Fonts and global stylesheet -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <!-- Cloudflare Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
+  <!-- Plotting and CSV parsing libraries -->
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 
 
 <body>
+  <!-- Hero: overview and quick actions -->
   <header class="site-header">
     <div class="container hero">
       <div class="hero-copy">
@@ -54,6 +58,7 @@
 
   <main>
 
+    <!-- Step-by-step usage guide -->
 
     <section id="how-to-use" class="section alt">
       <div class="container">
@@ -124,6 +129,7 @@
       <img id="img-modal-content" src="" alt="Expanded screenshot">
     </div>
 
+    <!-- Code decoding examples -->
     <section class="section">
       <div class="container two-col wide-right">
         <div class="card">
@@ -299,6 +305,7 @@
       </div>
     </section>
 
+    <!-- Editable secondments form -->
     <section id="submit-secondments" class="section alt">
       <div class="container">
         <div class="section-heading">
@@ -379,6 +386,7 @@
     </section>
 
 
+    <!-- Data-driven live charts -->
     <section id="live-stats" class="section">
       <div class="container container-wide">
         <div class="section-heading">
@@ -440,6 +448,7 @@
   </main>
 
 <script>
+  // Build the monthly scale and enable interactive timeline details.
   const scale = document.getElementById("timeline-scale");
   const detail = document.getElementById("timeline-detail");
   const bars = document.querySelectorAll(".timeline-bar");
@@ -467,6 +476,7 @@
 
 
 <script>
+  // Open screenshots in a modal with click and keyboard support.
   document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("img-modal");
   const modalImg = document.getElementById("img-modal-content");
@@ -517,6 +527,7 @@
 </script>
 
 <script>
+// Manage secondments CRUD interactions with the API endpoint.
 document.addEventListener("DOMContentLoaded", () => {
   const SECONDMENTS_ENDPOINT = "https://coast-secondments-api.lucas12-fp.workers.dev";
 
@@ -777,6 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 <script>
+// Build live statistics from the CSV feed and render Plotly charts.
 document.addEventListener("DOMContentLoaded", () => {
   const SECONDMENTS_ENDPOINT = "https://coast-secondments-api.lucas12-fp.workers.dev";
   const CSV_URL = `${SECONDMENTS_ENDPOINT}/api/secondments.csv`;
