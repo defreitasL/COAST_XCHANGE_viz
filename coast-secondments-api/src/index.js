@@ -25,18 +25,11 @@ function csvEscape(value) {
 
 function cleanHeader(header) {
   return String(header ?? "")
-    .replace(/^\uFEFF/, "")   // quita BOM
+    .replace(/^\uFEFF/, "")
     .trim();
 }
 
-function detectDelimiter(text) {
-  const firstLine = String(text || "").split(/\r?\n/)[0] || "";
-  const commaCount = (firstLine.match(/,/g) || []).length;
-  const semicolonCount = (firstLine.match(/;/g) || []).length;
-  return semicolonCount > commaCount ? ";" : ",";
-}
-
-function parseCsvLine(line, delimiter = ",") {
+function parseCsvLine(line) {
   const out = [];
   let current = "";
   let inQuotes = false;
@@ -52,7 +45,7 @@ function parseCsvLine(line, delimiter = ",") {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (char === delimiter && !inQuotes) {
+    } else if (char === "," && !inQuotes) {
       out.push(current);
       current = "";
     } else {
@@ -66,24 +59,22 @@ function parseCsvLine(line, delimiter = ",") {
 
 function parseCsv(text) {
   const safeText = String(text || "").replace(/^\uFEFF/, "");
-  const delimiter = detectDelimiter(safeText);
   const lines = safeText.split(/\r?\n/).filter(line => line.trim() !== "");
   if (!lines.length) return { headers: [], rows: [] };
 
-  const headers = parseCsvLine(lines[0], delimiter).map(cleanHeader);
+  const headers = parseCsvLine(lines[0]).map(cleanHeader);
 
   const rows = lines.slice(1).map(line => {
-    const values = parseCsvLine(line, delimiter);
+    const values = parseCsvLine(line);
     const obj = {};
     headers.forEach((header, i) => {
-      obj[header] = (values[i] ?? "").trim();
+      obj[header] = values[i] ?? "";
     });
     return obj;
   });
 
   return { headers, rows };
 }
-
 
 function buildCsv(headers, rows) {
   const headerLine = headers.map(csvEscape).join(",");

@@ -738,31 +738,49 @@ code {
   overflow-x: auto;
 }
 
+
 .timeline-grid {
+  --timeline-label-width: 180px;
+  --timeline-gap: 18px;
   min-width: 980px;
+}
+
+.timeline-scale-row,
+.timeline-row {
+  display: grid;
+  grid-template-columns: var(--timeline-label-width) 1fr;
+  align-items: center;
+  gap: var(--timeline-gap);
+}
+
+.timeline-scale-row {
+  margin-bottom: 18px;
+}
+
+.timeline-scale-spacer {
+  min-height: 1px;
 }
 
 .timeline-scale {
   display: grid;
   grid-template-columns: repeat(48, minmax(12px, 1fr));
   gap: 2px;
-  margin-bottom: 18px;
 }
 
 .timeline-scale div {
+  min-height: 24px;
   font-size: 0.72rem;
   color: var(--muted);
   text-align: center;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
 
-.timeline-row {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  align-items: center;
-  gap: 18px;
-  margin-bottom: 14px;
+.timeline-scale-empty {
+  color: transparent;
 }
 
 .timeline-label {
@@ -770,18 +788,19 @@ code {
   color: var(--text);
 }
 
-.timeline-row > .timeline-bar {
-  grid-column: 2;
-}
-
 .timeline-row {
   position: relative;
+  margin-bottom: 14px;
+}
+
+.timeline-row > .timeline-bar {
+  grid-column: 2;
 }
 
 .timeline-row::after {
   content: "";
   position: absolute;
-  left: 198px;
+  left: calc(var(--timeline-label-width) + var(--timeline-gap));
   right: 0;
   top: 50%;
   transform: translateY(-50%);
@@ -814,8 +833,9 @@ code {
   grid-column: 2;
   width: calc((var(--end) - var(--start) + 1) * (100% / 48));
   margin-left: calc((var(--start) - 1) * (100% / 48));
-  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
+
 
 .timeline-bar:hover,
 .timeline-bar.active {
@@ -847,9 +867,14 @@ code {
 }
 
 @media (max-width: 900px) {
+  .timeline-scale-row,
   .timeline-row {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .timeline-scale-spacer {
+    display: none;
   }
 
   .timeline-row::after {

@@ -197,8 +197,10 @@
 
         <div class="timeline-card">
           <div class="timeline-grid" id="timeline-grid">
-            <div class="timeline-scale-label"></div>
-            <div class="timeline-scale" id="timeline-scale"></div>
+            <div class="timeline-scale-row">
+              <div class="timeline-scale-spacer" aria-hidden="true"></div>
+              <div class="timeline-scale" id="timeline-scale"></div>
+            </div>
 
             <div class="timeline-row">
               <div class="timeline-label">Administrative setup</div>
@@ -460,7 +462,11 @@
   if (scale) {
     for (let i = 1; i <= 48; i++) {
       const tick = document.createElement("div");
-      tick.textContent = `M${i}`;
+      const shouldLabel = i === 1 || (i - 1) % 3 === 0 || i === 48;
+
+      tick.className = shouldLabel ? "timeline-scale-tick" : "timeline-scale-empty";
+      tick.textContent = shouldLabel ? `M${i}` : "";
+
       scale.appendChild(tick);
     }
   }
