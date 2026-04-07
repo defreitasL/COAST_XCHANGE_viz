@@ -23,7 +23,20 @@ function csvEscape(value) {
   return text;
 }
 
-function parseCsvLine(line) {
+function cleanHeader(header) {
+  return String(header ?? "")
+    .replace(/^\uFEFF/, "")   // quita BOM
+    .trim();
+}
+
+function detectDelimiter(text) {
+  const firstLine = String(text || "").split(/\r?\n/)[0] || "";
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const semicolonCount = (firstLine.match(/;/g) || []).length;
+  return semicolonCount > commaCount ? ";" : ",";
+}
+
+function parseCsvLine(line, delimiter = ",") {
   const out = [];
   let current = "";
   let inQuotes = false;
@@ -39,7 +52,7 @@ function parseCsvLine(line) {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (char === "," && !inQuotes) {
+    } else if (char === delimiter && !inQuotes) {
       out.push(current);
       current = "";
     } else {
@@ -52,21 +65,25 @@ function parseCsvLine(line) {
 }
 
 function parseCsv(text) {
-  const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+  const safeText = String(text || "").replace(/^\uFEFF/, "");
+  const delimiter = detectDelimiter(safeText);
+  const lines = safeText.split(/\r?\n/).filter(line => line.trim() !== "");
   if (!lines.length) return { headers: [], rows: [] };
 
-  const headers = parseCsvLine(lines[0]);
+  const headers = parseCsvLine(lines[0], delimiter).map(cleanHeader);
+
   const rows = lines.slice(1).map(line => {
-    const values = parseCsvLine(line);
+    const values = parseCsvLine(line, delimiter);
     const obj = {};
     headers.forEach((header, i) => {
-      obj[header] = values[i] ?? "";
+      obj[header] = (values[i] ?? "").trim();
     });
     return obj;
   });
 
   return { headers, rows };
 }
+
 
 function buildCsv(headers, rows) {
   const headerLine = headers.map(csvEscape).join(",");
@@ -81,7 +98,8 @@ async function getCurrentCsv(bucket) {
   if (!obj) {
     return "Institution,Name,Project phase,Host institution,M# (start),M# (end),WP,Secondment description\n";
   }
-  return await obj.text();
+  const text = await obj.text();
+  return String(text || "").replace(/^\uFEFF/, "");
 }
 
 function upgradeLegacyRows(headers, rows) {
