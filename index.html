@@ -381,10 +381,15 @@
             </div>
 
             <div class="secondments-bottom">
-              <div class="cf-turnstile" data-sitekey="0x4AAAAAACyXkfnuqv2E76Os"></div>
-              <button type="submit" class="btn btn-primary" id="submit-secondments-btn">
-                Submit
-              </button>
+              <div class="secondments-submit-inline">
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAACyXkfnuqv2E76Os"></div>
+
+                <button type="submit" class="btn btn-primary" id="submit-secondments-btn">
+                  Submit
+                </button>
+
+                <div id="secondments-submit-status" class="secondments-status secondments-status-inline" aria-live="polite"></div>
+              </div>
             </div>
           </form>
         </div>
@@ -575,12 +580,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("add-participant-btn");
   const rowsWrap = document.getElementById("participants-rows");
   const statusBox = document.getElementById("secondments-status");
+  const submitStatusBox = document.getElementById("secondments-submit-status");
   const submitBtn = document.getElementById("submit-secondments-btn");
 
   function setStatus(message, type = "") {
     statusBox.textContent = message || "";
     statusBox.classList.remove("is-error", "is-success");
     if (type) statusBox.classList.add(type);
+  }
+
+  function setSubmitStatus(message, type = "") {
+    if (!submitStatusBox) return;
+    submitStatusBox.textContent = message || "";
+    submitStatusBox.classList.remove("is-error", "is-success", "is-loading");
+    if (type) submitStatusBox.classList.add(type);
   }
 
   function phaseOptions(selected = "") {
@@ -693,6 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadInstitutionSecondments() {
     const institution = institutionInput.value.trim();
+    setSubmitStatus("");
     if (!institution) {
       setStatus("Please enter an institution first.", "is-error");
       return;
@@ -744,6 +758,7 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
 
     try {
+      setSubmitStatus("");
       const institution = institutionInput.value.trim();
       if (!institution) {
         throw new Error("Institution is required.");
@@ -760,7 +775,7 @@ document.addEventListener("DOMContentLoaded", () => {
       validateRows(participants);
 
       submitBtn.disabled = true;
-      setStatus("Saving secondments...");
+      setSubmitStatus("Saving secondments...", "is-loading");
 
       const response = await fetch(`${SECONDMENTS_ENDPOINT}/api/secondments`, {
         method: "POST",
@@ -780,13 +795,13 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(data.error || "Could not save secondments.");
       }
 
-      setStatus(`Saved ${data.replaced_with_rows} secondment(s) for ${institution}.`, "is-success");
+      setSubmitStatus(`Saved ${data.replaced_with_rows} secondment(s) for ${institution}.`, "is-success");
 
       if (window.turnstile) {
         window.turnstile.reset();
       }
     } catch (err) {
-      setStatus(err.message || "Could not save secondments.", "is-error");
+      setSubmitStatus(err.message || "Could not save secondments.", "is-error");
     } finally {
       submitBtn.disabled = false;
     }

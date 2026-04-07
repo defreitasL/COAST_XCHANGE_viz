@@ -907,8 +907,30 @@ code {
 }
 
 .secondments-bottom {
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-top: 20px;
+}
+
+.secondments-submit-inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.secondments-status-inline {
+  min-height: auto;
+  margin-bottom: 0;
+  white-space: normal;
+  font-weight: 700;
+}
+
+.secondments-status-inline.is-loading {
+  color: var(--muted);
+}
+
+.secondments-submit-inline .btn {
+  flex: 0 0 auto;
 }
 
 .secondments-field {
@@ -1065,6 +1087,10 @@ code {
   .row-action {
     justify-content: flex-start;
   }
+  .secondments-submit-inline {
+    align-items: flex-start;
+  }
+
 }
 
 /* Live statistics section */
