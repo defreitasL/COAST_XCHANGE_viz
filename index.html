@@ -926,7 +926,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     rows.forEach((row) => {
       const label = row[fieldName];
-      const duration = row.endMonth - row.startMonth + 1;
+      const duration = row.endMonth - row.startMonth;
 
       if (!grouped.has(label)) {
         grouped.set(label, {
@@ -937,7 +937,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const entry = grouped.get(label);
-      entry.secondments += 1;
+      // entry.secondments += 1;
       entry.secondmentMonths += duration;
     });
 
